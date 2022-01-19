@@ -13,7 +13,7 @@ var createTimeBlockEl = function (time, textArea) {
     class: "row time-block",
     "data-time": time,
   });
-  var colTime = $("<div>").attr("class", "col-2 col-md-1 hour text-right");
+  var colTime = $("<div>").attr("class", "col-2 col-md-1 hour text-right p-3");
   var colTextArea = $("<textarea>").attr(
     "class",
     "col-8 col-md-10 description"
