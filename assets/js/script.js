@@ -1,12 +1,17 @@
 // Set variable for the object of the work schedule
 var timeSchedule = {};
 
-// Create elements for the schedule
-var createScheduleElements = function (time, textArea) {
+// On document ready, call onLoad function
+$(document).ready(function () {
+  onLoad();
+});
+
+// Create time block elements
+var createTimeBlockEl = function (time, textArea) {
   var scheduleDiv = $("<div>").attr({
     id: "schedule-" + time,
     class: "row time-block",
-    "data-id": time,
+    "data-time": time,
   });
   var colTime = $("<div>").attr("class", "col-2 col-md-1 hour text-right");
   var colTextArea = $("<textarea>").attr(
@@ -29,11 +34,13 @@ var createScheduleElements = function (time, textArea) {
   } else {
     colTime.text(time - 12 + "pm");
   }
+
+  // Append elements to the schedule div
   scheduleDiv.append(colTime);
   scheduleDiv.append(colTextArea);
   colSaveBtn.append(button);
   scheduleDiv.append(colSaveBtn);
-  $(".container").append(scheduleDiv);
+  $("#timeContainer").append(scheduleDiv);
 
   // Set the color of the time block
   setTimeBlockColor();
@@ -53,7 +60,7 @@ var getSchedule = function (time) {
 var setTimeBlockColor = function () {
   var currentHour = moment().hour();
   $(".time-block").each(function () {
-    var blockHour = parseInt($(this).attr("data-id"));
+    var blockHour = parseInt($(this).attr("data-time"));
     if (blockHour < currentHour) {
       $(this).addClass("past");
     } else if (blockHour === currentHour) {
@@ -64,23 +71,25 @@ var setTimeBlockColor = function () {
   });
 };
 
-// Create the schedule
-var createSchedule = function () {
-  for (var i = 0; i < 9; i++) {
-    var time = i + 9;
+// Create time block
+var createTimeBlock = function () {
+  var startTime = 9;
+  var workHours = 9;
+  for (var i = 0; i < workHours; i++) {
+    var time = i + startTime;
     var textArea = getSchedule(time);
     if (time <= 12) {
-      createScheduleElements(time, textArea);
+      createTimeBlockEl(time, textArea);
     } else {
-      createScheduleElements(time, textArea);
+      createTimeBlockEl(time, textArea);
     }
   }
 };
 
-// Click on the button to add a new time
+// Button click
 $(".container").on("click", "button", function () {
   var textArea = $(this).siblings("textarea").val().trim();
-  var id = $(this).closest(".time-block").attr("data-id");
+  var id = $(this).closest(".time-block").attr("data-time");
   var schedulObj = {
     id: id,
     text: textArea,
@@ -92,11 +101,6 @@ $(".container").on("click", "button", function () {
   saveSchedule();
 });
 
-// Focus on the text area
-$(".container").on("click", "textarea", function () {
-  $(this).find("textarea").focus();
-});
-
 // Save the schedule to local storage
 var saveSchedule = function () {
   localStorage.setItem("schedule", JSON.stringify(timeSchedule));
@@ -105,7 +109,8 @@ var saveSchedule = function () {
 // Check if the new schedule already exists
 var checkIfScheduleExists = function (schedulObj) {
   var id = schedulObj.id;
-  var textArea = schedulObj.text;
+  var textArea = schedulObj.text.trim();
+  // If text area is empty, remove the schedule from the array
   if (!textArea) {
     for (var i = 0; i < timeSchedule.schedule.length; i++) {
       if (timeSchedule.schedule[i].id == id) {
@@ -113,7 +118,8 @@ var checkIfScheduleExists = function (schedulObj) {
         return true;
       }
     }
-  }
+    return true;
+  } 
 
   if (timeSchedule.schedule.length > 0) {
     for (var i = 0; i < timeSchedule.schedule.length; i++) {
@@ -143,8 +149,5 @@ var onLoad = function () {
   } else {
     timeSchedule = storedSchedule;
   }
-  createSchedule();
+  createTimeBlock();
 };
-
-// Call the onLoad function
-onLoad();
